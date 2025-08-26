@@ -21,13 +21,11 @@ services:
     environment:
       - NODE_ENV=development
       - PORT=4000
-    depends_on:
-      - contracts
 
-  contracts:
-    build:
-      context: ../smart-contracts
-      dockerfile: ../infra/smart-contracts.Dockerfile
-    command: sh -c "npx hardhat node"
-    ports:
-      - "8545:8545"
+  # contracts:
+  #   build:
+  #     context: ../smart-contracts
+  #     dockerfile: ../infra/smart-contracts.Dockerfile
+  #   command: sh -c "npx hardhat node"
+  #   ports:
+  #     - "8545:8545"
