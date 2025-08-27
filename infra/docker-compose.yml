@@ -18,14 +18,20 @@ services:
       dockerfile: ../infra/backend.Dockerfile
     ports:
       - "4000:4000"
-    environment:
+    environment:                        
       - NODE_ENV=development
       - PORT=4000
 
-  # contracts:
-  #   build:
-  #     context: ../smart-contracts
-  #     dockerfile: ../infra/smart-contracts.Dockerfile
-  #   command: sh -c "npx hardhat node"
-  #   ports:
-  #     - "8545:8545"
+  model:
+    build:
+      context: ../model
+      dockerfile: ../infra/model.Dockerfile
+    ports:
+      - "8000:8000"
+    environment:
+      - MODEL_ENV=production
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - capabilities: ["gpu"]
