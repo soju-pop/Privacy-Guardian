@@ -6,14 +6,19 @@ import { MainView } from './views/MainView.tsx';
 import { ImageAnalysisProvider } from './contexts/ImageAnalysisContext.tsx';
 import { TextAnalysisProvider } from './contexts/TextAnalysisContext.tsx';
 import { ThemeProvider } from './theme/ThemeProvider.tsx';
+import { ToastProvider } from './contexts/ToastContext.tsx';
+import { GlobalToast } from './components/GlobalToast.tsx';
 
 root.render(
   <ThemeProvider>
-    <TextAnalysisProvider>
-      <ImageAnalysisProvider>
-        <MainView />
-      </ImageAnalysisProvider>
-    </TextAnalysisProvider>
+    <ToastProvider>
+      <TextAnalysisProvider>
+        <ImageAnalysisProvider>
+          <MainView />
+          <GlobalToast />
+        </ImageAnalysisProvider>
+      </TextAnalysisProvider>
+    </ToastProvider>
   </ThemeProvider>
 )
 
