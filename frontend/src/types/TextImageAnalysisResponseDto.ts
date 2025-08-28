@@ -1,7 +1,4 @@
 export interface TextImageAnalysisResponseDto {
-  preview: string;
-  detected: Array<{
-    type: string;
-    value: string;
-  }>;
+  text: string;
+  entities: [key: string, value: string[]];
 }

@@ -6,9 +6,19 @@ export interface TextImageAnalysis {
   detected: DetectedTextItem[];
 }
 
-export function mapTextImageAnalysisResponse(dto: TextImageAnalysisResponseDto): TextImageAnalysis {
+export function mapTextImageAnalysisResponse(
+  dto: TextImageAnalysisResponseDto
+): TextImageAnalysis {
   return {
-    preview: dto.preview,
-    detected: dto.detected.map(d => ({ type: d.type, value: d.value })),
+    preview: dto.text,
+    detected: Object.entries(dto.entities)
+      .map(([key, values]) =>
+        (Array.isArray(values) ? values : [values]).map((value) => ({
+          type: key,
+          value,
+        }))
+      )
+      .flat(),
+    // detected: dto.entities.map((d) => ({ type: d[0], value: d[1] })),
   };
 }
