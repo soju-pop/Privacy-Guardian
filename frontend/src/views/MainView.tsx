@@ -25,7 +25,7 @@ export function MainView() {
           gap: "0px",
           width: "100%",
           margin: "32px auto 0 auto",
-          borderRadius: 12,
+          borderRadius: "12px",
           overflow: "hidden",
           boxShadow: "0 1px 8px #0001",
           border: "3px solid #222",
@@ -35,9 +35,9 @@ export function MainView() {
           bindtap={() => setTab("text")}
           style={{
             flex: "1 1 0%",
-            padding: 16,
+            padding: "16px",
             fontWeight: "600",
-            fontSize: 16,
+            fontSize: "16px",
             borderBottom:
               tab === "text" ? "3px solid #2563eb" : "3px solid transparent",
             background: tab === "text" ? "#222" : "transparent",
@@ -53,9 +53,9 @@ export function MainView() {
           bindtap={() => setTab("image")}
           style={{
             flex: "1 1 0%",
-            padding: 16,
+            padding: "16px",
             fontWeight: "600",
-            fontSize: 16,
+            fontSize: "16px",
             background: tab === "image" ? "#222" : "transparent",
             borderBottom:
               tab === "image" ? "3px solid #2563eb" : "3px solid transparent",
@@ -68,7 +68,7 @@ export function MainView() {
           <text style={{ color: "#fff" }}>Image Analysis</text>
         </view>
       </view>
-      <view style={{ minHeight: 400 }}>
+      <view style={{ minHeight: "400px" }}>
         {tab === "text" ? <TextAnalysisView /> : <ImageAnalysisView />}
       </view>
     </view>

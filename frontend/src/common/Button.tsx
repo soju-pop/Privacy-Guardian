@@ -16,7 +16,7 @@ export function Button({
         background: disabled ? "#ccc" : theme.primary,
         color: "#fff",
         border: "none",
-        borderRadius: 6,
+        borderRadius: "6px",
         padding: "10px 18px",
         fontWeight: "600",
         fontFamily: theme.fontFamily,

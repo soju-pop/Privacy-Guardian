@@ -35,12 +35,12 @@ export function ImageAnalysisView() {
         style={{
           flex: 1,
           overflow: "auto",
-          maxWidth: 720,
+          maxWidth: "720px",
           margin: "0 auto",
           background: "#161616",
-          borderRadius: 20,
+          borderRadius: "20px",
           boxShadow: "0 4px 20px #0006",
-          padding: 24,
+          padding: "24px",
           height: "80vh",
         }}
       >
@@ -53,17 +53,17 @@ export function ImageAnalysisView() {
             fontFamily: "Inter, sans-serif",
           }}
         >
-          <view style={{ marginBottom: 24 }}>
+          <view style={{ marginBottom: "24px" }}>
             <text
               style={{
                 fontWeight: "800",
-                fontSize: 26,
+                fontSize: "26px",
                 color: "#fff",
               }}
             >
               Image PII Detection
             </text>
-            <text style={{ fontSize: 14, color: "#aaa" }}>
+            <text style={{ fontSize: "14px", color: "#aaa" }}>
               Protect sensitive data in your images
             </text>
           </view>
@@ -73,18 +73,18 @@ export function ImageAnalysisView() {
             accept="image/*"
             onChange={(e: any) => setFile(e.target.files[0])}
             style={{
-              marginBottom: 20,
+              marginBottom: "20px",
               color: "#fff",
             }}
           />
 
-          <view style={{ display: "flex", gap: 12, marginBottom: 20 }}>
+          <view style={{ display: "flex", gap: "12px", marginBottom: "20px" }}>
             <Button
               bindtap={analyzeImage}
               disabled={loading || !file}
               style={{
                 background: "#ff0050",
-                borderRadius: 12,
+                borderRadius: "12px",
                 padding: "10px 20px",
                 fontWeight: "600",
               }}
@@ -97,7 +97,7 @@ export function ImageAnalysisView() {
             <>
               <view
                 style={{
-                  marginBottom: 20,
+                  marginBottom: "20px",
                   textAlign: "center",
                 }}
               >
@@ -106,7 +106,7 @@ export function ImageAnalysisView() {
                   alt="Uploaded preview"
                   style={{
                     maxWidth: "100%",
-                    borderRadius: 12,
+                    borderRadius: "12px",
                     boxShadow: "0 2px 12px #0009",
                   }}
                 />
@@ -116,17 +116,17 @@ export function ImageAnalysisView() {
                 style={{
                   background: "#2a0f12",
                   border: "1px solid #ff0050",
-                  borderRadius: 12,
-                  padding: 18,
-                  marginBottom: 20,
+                  borderRadius: "12px",
+                  padding: "18px",
+                  marginBottom: "20px",
                 }}
               >
                 <text
                   style={{
                     color: "#ff4d6d",
                     fontWeight: "700",
-                    fontSize: 18,
-                    marginBottom: 12,
+                    fontSize: "18px",
+                    marginBottom: "12px",
                     display: "block",
                   }}
                 >
@@ -138,16 +138,16 @@ export function ImageAnalysisView() {
                     style={{
                       display: "flex",
                       alignItems: "center",
-                      gap: 10,
-                      marginBottom: 10,
+                      gap: "10px",
+                      marginBottom: "10px",
                     }}
                   >
                     <text
                       style={{
                         background: "#00f2ea22",
-                        borderRadius: 8,
+                        borderRadius: "8px",
                         padding: "2px 8px",
-                        fontSize: 13,
+                        fontSize: "13px",
                         color: "#00f2ea",
                       }}
                     >
@@ -156,7 +156,7 @@ export function ImageAnalysisView() {
                     <text
                       style={{
                         fontWeight: "600",
-                        fontSize: 15,
+                        fontSize: "15px",
                         color: "#fff",
                         letterSpacing: 0.5,
                       }}

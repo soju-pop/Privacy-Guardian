@@ -12,17 +12,17 @@ export function Toast({ message, show, duration = 2500, onClose }: { message: st
   return (
     <view style={{
       position: 'fixed',
-      right: 24,
-      bottom: 24,
+      right: '24px',
+      bottom: '24px',
       background: '#ef4444',
       color: '#fff',
-      borderRadius: 12,
+      borderRadius: '12px',
       padding: '16px 28px',
       fontWeight: '600',
-      fontSize: 16,
+      fontSize: '16px',
       boxShadow: '0 2px 8px #0002',
       zIndex: 9999,
-      minWidth: 180,
+      minWidth: '180px',
       textAlign: 'center',
     }}>
       <text>{message}</text>
