@@ -5,6 +5,7 @@ import type { ReactNode } from "@lynx-js/react";
 import type { DetectedImageItem } from "../types/DetectedImageItem.ts";
 import type { ImageAnalysis } from "../types/ImageAnalysis.ts";
 import type { ImageRedact } from "../types/ImageRedact.ts";
+import { useToast } from "./ToastContext.tsx";
 
 interface ImageAnalysisState {
     file: any;
@@ -13,8 +14,6 @@ interface ImageAnalysisState {
     setAnalysis: (a: ImageAnalysis | null) => void;
     analysisLoading: boolean;
     setAnalysisLoading: (l: boolean) => void;
-    showToast: boolean;
-    setShowToast: (s: boolean) => void;
     showModal: boolean;
     setShowModal: (s: boolean) => void;
     redactedPreview: ImageRedact | null;
@@ -24,9 +23,9 @@ interface ImageAnalysisState {
     handleSelect: (img: any) => void;
     handleUpload: () => void;
     handleRemove: () => void;
-    analyzeImage: () => void;
+    handleAnalyse: () => Promise<void>;
     handleToggleDetected: (idx: number) => void;
-    handleRedact: () => void;
+    handleRedact: () => Promise<void>;
 }
 
 const ImageAnalysisContext = createContext<ImageAnalysisState | undefined>(undefined);
@@ -41,10 +40,10 @@ export function ImageAnalysisProvider({ children }: { children: ReactNode }) {
     const [file, setFile] = useState<any>(null);
     const [analysis, setAnalysis] = useState<ImageAnalysis | null>(null);
     const [analysisLoading, setAnalysisLoading] = useState(false);
-    const [showToast, setShowToast] = useState(false);
     const [showModal, setShowModal] = useState(false);
     const [redactedPreview, setRedactedPreview] = useState<ImageRedact | null>(null);
     const [redactingLoading, setRedactingLoading] = useState(false);
+    const { showToast } = useToast();
 
     function handleUpload() {
         setShowModal(true);
@@ -63,24 +62,51 @@ export function ImageAnalysisProvider({ children }: { children: ReactNode }) {
         setRedactedPreview(null);
     }
 
-    function analyzeImage() {
+    async function handleAnalyse() {
         if (!file) return;
         setAnalysisLoading(true);
 
-        // TODO: Call the backend API to analyze the image
-        setTimeout(() => {
-            const result: ImageAnalysis = {
-                detected: [
-                    { type: "FACE", value: "Detected face", checked: true },
-                    { type: "LICENSE_PLATE", value: "ABC-1234", checked: true },
-                ],
+        try {
+            // Convert image URL to base64
+            const response = await fetch(file);
+            const blob = await response.blob();
+            const reader = new FileReader();
+
+            reader.onload = () => {
+                const base64 = reader.result as string;
+
+                // TODO: Call the backend API to analyse the image with base64
+                setTimeout(() => {
+                    const result: ImageAnalysis = {
+                        detected: [
+                            { type: "FACE", value: "Detected face", checked: true },
+                            { type: "LICENSE_PLATE", value: "ABC-1234", checked: true },
+                        ],
+                    };
+                    setAnalysis(result);
+                    setAnalysisLoading(false);
+                    if (result.detected && result.detected.length > 0) {
+                        showToast({
+                            message: `Sensitive Data Detected\nFound ${result.detected.length} instances`
+                        });
+                    }
+                }, 1200);
             };
-            setAnalysis(result);
+
+            reader.onerror = () => {
+                showToast({
+                    message: "Error converting image to base64"
+                });
+                setAnalysisLoading(false);
+            };
+
+            reader.readAsDataURL(blob);
+        } catch (error) {
+            showToast({
+                message: `Error fetching image: ${error}`
+            });
             setAnalysisLoading(false);
-            if (result.detected && result.detected.length > 0) {
-                setShowToast(true);
-            }
-        }, 1200);
+        }
     }
 
     function handleToggleDetected(idx: number) {
@@ -91,7 +117,7 @@ export function ImageAnalysisProvider({ children }: { children: ReactNode }) {
         });
     }
 
-    function handleRedact() {
+    async function handleRedact() {
         setRedactingLoading(true);
 
         // TODO: Call the backend API to redact the image
@@ -110,8 +136,6 @@ export function ImageAnalysisProvider({ children }: { children: ReactNode }) {
                 setAnalysis,
                 analysisLoading,
                 setAnalysisLoading,
-                showToast,
-                setShowToast,
                 showModal,
                 setShowModal,
                 redactedPreview,
@@ -121,7 +145,7 @@ export function ImageAnalysisProvider({ children }: { children: ReactNode }) {
                 handleSelect,
                 handleUpload,
                 handleRemove,
-                analyzeImage,
+                handleAnalyse,
                 handleToggleDetected,
                 handleRedact,
             }}

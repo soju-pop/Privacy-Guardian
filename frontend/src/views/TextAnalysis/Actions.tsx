@@ -4,16 +4,16 @@ import { useTheme } from "../../theme/ThemeProvider.tsx";
 interface TextAnalysisActionsProps {
     loading: boolean;
     analysis: any;
-    onAnalyze: () => void;
+    onAnalyse: () => void;
 }
 
-export function TextAnalysisActions({ loading, analysis, onAnalyze }: TextAnalysisActionsProps) {
+export function TextAnalysisActions({ loading, analysis, onAnalyse }: TextAnalysisActionsProps) {
     const theme = useTheme();
-    
+
     return (
         <view style={{ display: "flex", gap: "12px", marginBottom: "20px" }}>
             <Button
-                bindtap={onAnalyze}
+                bindtap={onAnalyse}
                 disabled={loading}
                 style={{
                     background: theme.primary,
@@ -23,7 +23,7 @@ export function TextAnalysisActions({ loading, analysis, onAnalyze }: TextAnalys
                     width: "500px",
                 }}
             >
-                {loading ? "Analyzing..." : "Analyze Text"}
+                {loading ? "Analysing..." : "Analyse Text"}
             </Button>
             <Button
                 style={{

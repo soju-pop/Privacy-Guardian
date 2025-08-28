@@ -1,6 +1,7 @@
 import { createContext, useContext, useState } from "@lynx-js/react";
 import type { ReactNode } from "@lynx-js/react";
 
+import { useToast } from "./ToastContext.tsx";
 import type { TextImageAnalysis } from "../types/TextImageAnalysis.ts";
 
 interface TextAnalysisState {
@@ -10,9 +11,7 @@ interface TextAnalysisState {
     setAnalysis: (a: TextImageAnalysis | null) => void;
     loading: boolean;
     setLoading: (l: boolean) => void;
-    showToast: boolean;
-    setShowToast: (s: boolean) => void;
-    analyzeText: () => void;
+    handleAnalyse: () => void;
 }
 
 const TextAnalysisContext = createContext<TextAnalysisState | undefined>(undefined);
@@ -28,12 +27,12 @@ export function TextAnalysisProvider({ children }: { children: ReactNode }) {
     const [input, setInput] = useState("");
     const [analysis, setAnalysis] = useState<TextImageAnalysis | null>(null);
     const [loading, setLoading] = useState(false);
-    const [showToast, setShowToast] = useState(false);
+    const { showToast } = useToast();
 
-    function analyzeText() {
+    function handleAnalyse() {
         setLoading(true);
 
-        // TODO: Call the backend API to analyze the text
+        // TODO: Call the backend API to analyse the text
         setTimeout(() => {
             const result: TextImageAnalysis = {
                 preview:
@@ -47,7 +46,9 @@ export function TextAnalysisProvider({ children }: { children: ReactNode }) {
             setAnalysis(result);
             setLoading(false);
             if (result.detected && result.detected.length > 0) {
-                setShowToast(true);
+                showToast({
+                    message: `PII Detected\nFound ${result.detected.length} sensitive data instances`
+                });
             }
         }, 800);
     }
@@ -61,9 +62,7 @@ export function TextAnalysisProvider({ children }: { children: ReactNode }) {
                 setAnalysis,
                 loading,
                 setLoading,
-                showToast,
-                setShowToast,
-                analyzeText,
+                handleAnalyse,
             }}
         >
             {children}
