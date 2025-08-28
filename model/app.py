@@ -9,9 +9,19 @@ import numpy as np
 import re
 from paddleocr import PaddleOCR
 import os
-import shutil
 import atexit
 import glob
+import logging
+import sys
+import base64
+
+# Configure logging
+logging.basicConfig(
+    level=logging.INFO,        
+    format="%(asctime)s [%(levelname)s] %(message)s",
+    stream=sys.stdout            
+)
+logger = logging.getLogger(__name__)
 
 
 ######################################################################## pydantic request models ########################################################################
@@ -29,16 +39,21 @@ class VLMENTity(BaseModel):
     label: str
     polygon: List[List[int]]  # [[x1, y1], [x2, y2], ...]
 
+class VLMRequest(BaseModel):
+    image_base64: str  # base64-encoded image string
+
 class VLMResponse(BaseModel):
+    file_path: str
     results: List[VLMENTity]
     status: str
 
 class RedactRequest(BaseModel):
     file_path: str
-    polygon: List[List[int]]
+    polygon: List[List[List[int]]]  # list of polygons, each polygon is a list of [x, y] points
 
 class RedactResponse(BaseModel):
     file_path: str
+    image_base64: str
 
 ######################################################################### Helper ########################################################################
 punct_to_remove = r"[\.,;:!?\"’`]"
@@ -60,6 +75,11 @@ def regex_fallback(text):
         if matches:
             results[label] = matches
     return results
+
+def polygons_equal(poly1, poly2):
+    if len(poly1) != len(poly2):
+        return False
+    return all(p1 == p2 for p1, p2 in zip(poly1, poly2))
 
 ######################################################################### Load pretrain SpaCy NER Model ########################################################################
 if spacy.prefer_gpu():
@@ -120,10 +140,29 @@ async def ner(request: NERRequest):
     }
 
 @app.post("/vlm", response_model = VLMResponse)
-async def vlm(file: UploadFile = File(...)):
-    input_path = f"temp_{file.filename}"
-    with open(input_path, "wb") as buffer:
-        shutil.copyfileobj(file.file, buffer)
+async def vlm(request: VLMRequest):
+    # Ensure data folder exists
+    os.makedirs("data", exist_ok=True)
+
+    # Determine the next file index to avoid overwriting
+    existing_files = [f for f in os.listdir("data") if f.startswith("temp_") and f.endswith(".png")]
+    if existing_files:
+        # Extract numbers from filenames like temp_1.png, temp_2.png
+        indices = [int(f.split("_")[1].split(".")[0]) for f in existing_files]
+        next_index = max(indices) + 1
+    else:
+        next_index = 1
+
+    # Decode the base64 string
+    try:
+        image_data = base64.b64decode(request.image_base64)
+    except Exception:
+        raise HTTPException(status_code=400, detail="Invalid base64 string")
+
+    # Save to a unique temporary file
+    input_path = f"data/temp_{next_index}.png"
+    with open(input_path, "wb") as f:
+        f.write(image_data)
 
     image = cv2.imread(input_path)
     if image is None:
@@ -153,6 +192,7 @@ async def vlm(file: UploadFile = File(...)):
                     })
 
     return {
+        "file_path": input_path,
         "results": results,
         "status": "success" if results else "nil"
     }
@@ -161,17 +201,16 @@ async def vlm(file: UploadFile = File(...)):
 ########################################## Redaction logic ##########################################
 redaction_store = {}  # { "file.png": [polygon}, ... ] }
 
-def render_redactions(file_name: str):
-    input_path = f"temp_{file_name}"
-    output_path = f"redacted_{file_name}"
+def render_redactions(file_path: str):
+    logger.info(f"Rendering redactions for file: {file_path}")
 
-    image = cv2.imread(input_path)
+    image = cv2.imread(file_path)
     if image is None:
         raise HTTPException(status_code=400, detail="Image not found")
 
     expand_px, padding = 20, 15
 
-    for item in redaction_store.get(file_name, []):
+    for item in redaction_store.get(file_path, []):
         poly = np.array(item["polygon"], dtype=np.int32)
 
         # Clip poly
@@ -206,50 +245,72 @@ def render_redactions(file_name: str):
         # Apply redaction
         image[mask == 255] = (0, 0, 0)
 
+    output_path = file_path.split(".")[0] + "_redacted" + ".png"
     Image.fromarray(cv2.cvtColor(image, cv2.COLOR_BGR2RGB)).save(output_path)
-    return output_path
+
+    # Open the image in binary mode and encode it to base64
+    with open(output_path, "rb") as image_file:
+        image_base64 = base64.b64encode(image_file.read()).decode("utf-8")
+
+    return image_base64
 
 # Redact (add + re-render)
 @app.post("/vlm/redact", response_model=RedactResponse)
 async def vlm_redact(request: RedactRequest):
-    if request.file_name not in redaction_store:
-        redaction_store[request.file_name] = []
+    logger.info(f"Received redact request for file_path: {request.file_path}, polygons: {request.polygon}")
+    if request.file_path not in redaction_store:
+        redaction_store[request.file_path] = []
 
     # Add the polygon to the store
-    redaction_store[request.file_name].append({
-        "polygon": request.polygon
-    })
+    for poly in request.polygon:
+        redaction_store[request.file_path].append({
+            "polygon": poly
+        })
 
-    output_path = render_redactions(request.file_name)
-    return {"file_path": output_path}
+    image_base64 = render_redactions(request.file_path)
+    return {
+        "file_path": request.file_path,   
+        "image_base64": image_base64  # base64 string of the redacted image
+    }
 
 
 # Unredact (remove + re-render)
 @app.post("/vlm/unredact", response_model=RedactResponse)
 async def vlm_unredact(request: RedactRequest):
-    if request.file_name not in redaction_store:
+    if request.file_path not in redaction_store:
         raise HTTPException(status_code=404, detail="No redactions found for this file")
 
     # remove requested polygons
-    redaction_store[request.file_name] = [
-        existing for existing in redaction_store[request.file_name]
-        if existing["polygon"] != request.polygon
-    ]
+    for remove_poly in request.polygon:  # support multiple polygons
+        redaction_store[request.file_path] = [
+            existing for existing in redaction_store[request.file_path]
+            if not polygons_equal(existing["polygon"], remove_poly)
+        ]
 
-    output_path = render_redactions(request.file_name)
-    return {"file_path": output_path}
+
+    image_base64 = render_redactions(request.file_path)
+    return {
+        "file_path": request.file_path,   
+        "image_base64": image_base64  # base64 string of the redacted image
+    }
 
 
 #################################################### Cleanup on shutdown #################################################################################
 def cleanup_images():
-    patterns = ["temp_*", "redacted_*"]
+    # Absolute path to the data folder
+    data_dir = os.path.join(os.getcwd(), "data")
+    patterns = ["temp_*"]
+
     for pattern in patterns:
-        for file in glob.glob(pattern):
+        full_pattern = os.path.join(data_dir, pattern)
+        files = glob.glob(full_pattern)
+        for file in files:
             try:
-                os.remove(file)
-                print(f"Deleted file: {file}")
+                if os.path.isfile(file):
+                    os.remove(file)
+                    logger.info(f"Deleted file: {file}")
             except Exception as e:
-                print(f"Failed to delete {file}: {e}")
+                logger.error(f"Failed to delete {file}: {e}")
 
 # Register the cleanup function
 atexit.register(cleanup_images)
