@@ -8,6 +8,7 @@ import { Header } from "../common/Header.tsx";
 export function MainView() {
   const [tab, setTab] = useState("text");
   const theme = useTheme();
+  
   return (
     <view
       style={{
