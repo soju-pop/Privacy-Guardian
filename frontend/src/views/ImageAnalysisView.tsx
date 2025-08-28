@@ -7,6 +7,9 @@ import { Toast } from "../common/Toast.tsx";
 import { sampleImages, SampleImagePickerModal } from "../components/SampleImagePickerModal.tsx";
 import { ScrollContainer } from "../common/ScrollContainer.tsx";
 import { SectionHeader } from "../common/SectionHeader.tsx";
+import { ImageAnalysisActions } from "./ImageAnalysis/Actions.tsx";
+import { ImageAnalysisDetected } from "./ImageAnalysis/Detected.tsx";
+import { FinalPreview } from "./ImageAnalysis/FinalPreview.tsx";
 
 export function ImageAnalysisView() {
   const [file, setFile] = useState<any>(null);
@@ -14,7 +17,20 @@ export function ImageAnalysisView() {
   const [loading, setLoading] = useState(false);
   const [showToast, setShowToast] = useState(false);
   const [showModal, setShowModal] = useState(false);
+  const [detected, setDetected] = useState<any[]>([]);
+  const [redactedPreview, setRedactedPreview] = useState<string>("");
   const theme = useTheme();
+
+  function handleUpload() {
+    setShowModal(true);
+  }
+
+  function handleRemove() {
+    setFile(null);
+    setAnalysis(null);
+    setDetected([]);
+    setRedactedPreview("");
+  }
 
   function analyzeImage() {
     if (!file) return;
@@ -23,16 +39,29 @@ export function ImageAnalysisView() {
       const result = {
         preview: file,
         detected: [
-          { type: "FACE", value: "Detected face" },
-          { type: "LICENSE_PLATE", value: "ABC-1234" },
+          { type: "FACE", value: "Detected face", checked: true },
+          { type: "LICENSE_PLATE", value: "ABC-1234", checked: true },
         ],
       };
       setAnalysis(result);
+      setDetected(result.detected);
       setLoading(false);
       if (result.detected && result.detected.length > 0) {
         setShowToast(true);
       }
     }, 1200);
+  }
+
+  function handleToggleDetected(idx: number) {
+    setDetected(detected => detected.map((item, i) => i === idx ? { ...item, checked: !item.checked } : item));
+  }
+
+  function handleRedact() {
+    setLoading(true);
+    setTimeout(() => {
+      setRedactedPreview(file + "?redacted=" + detected.filter(d => d.checked).map(d => d.type).join(","));
+      setLoading(false);
+    }, 1000);
   }
 
   return (
@@ -41,149 +70,50 @@ export function ImageAnalysisView() {
         title="Image PII Detection"
         subtitle="Protect sensitive data in your images"
       />
-      <view style={{ display: "flex", flexDirection: "column", alignItems: "center", marginBottom: "20px" }}>
-        <Button
-          style={{
-            background: theme.secondary,
-            color: theme.textSecondary,
-            borderRadius: theme.borderRadius,
-            fontWeight: "600",
-            marginBottom: "20px",
-            padding: "10px 20px",
-            width: "320px",
-          }}
-          bindtap={() => setShowModal(true)}
-        >
-          {file ? "Change Image" : "Upload Image"}
-        </Button>
-      </view>
-
-      <SampleImagePickerModal
-        show={showModal}
-        images={sampleImages}
-        selected={file}
-        onSelect={img => {
+      <ImageAnalysisActions
+        file={file}
+        showModal={showModal}
+        loading={loading}
+        onUpload={handleUpload}
+        onRemove={handleRemove}
+        onAnalyze={analyzeImage}
+        onModalClose={() => setShowModal(false)}
+        onModalSelect={img => {
           setFile(img);
           setShowModal(false);
+          setAnalysis(null);
+          setDetected([]);
+          setRedactedPreview("");
         }}
-        onClose={() => setShowModal(false)}
+        analysis={analysis}
       />
-
-      {file && !analysis && (
-        <view style={{ marginBottom: "20px", display: "flex", justifyContent: "center" }}>
-          <image
-            src={file}
-            auto-size={true}
-            mode="aspectFit"
-            style={{
-              maxWidth: "400px",
-              maxHeight: "300px",
-              width: "250px",
-              height: "250px",
-              borderRadius: theme.borderRadius,
-              boxShadow: theme.boxShadow,
-              display: "block",
-            }}
-          />
-        </view>
-      )}
-
-      <view style={{ display: "flex", justifyContent: "center", marginBottom: "20px" }}>
-        <Button
-          bindtap={analyzeImage}
-          disabled={loading || !file}
-          style={{
-            background: theme.primary,
-            borderRadius: theme.borderRadius,
-            padding: "10px 20px",
-            fontWeight: "600",
-            width: "320px",
-          }}
-        >
-          {loading ? "Analyzing..." : "Analyze Image"}
-        </Button>
-      </view>
 
       {analysis && (
         <>
-          <view
-            style={{
-              marginBottom: "20px",
-              textAlign: "center",
-            }}
-          >
-            <img
-              src={analysis.preview}
-              alt="Uploaded preview"
+          <FinalPreview src={redactedPreview || analysis.preview} />
+          <ImageAnalysisDetected detected={detected} onToggle={handleToggleDetected} />
+          <view style={{ display: "flex", justifyContent: "center", marginBottom: "20px" }}>
+            <Button
+              bindtap={handleRedact}
+              disabled={loading || !detected.some(d => d.checked)}
               style={{
-                maxWidth: "100%",
+                background: theme.danger,
                 borderRadius: theme.borderRadius,
-                boxShadow: theme.boxShadow,
-              }}
-            />
-          </view>
-
-          <view
-            style={{
-              background: theme.highlight,
-              border: `1px solid ${theme.primary}`,
-              borderRadius: theme.borderRadius,
-              padding: "18px",
-              marginBottom: "20px",
-            }}
-          >
-            <text
-              style={{
-                color: theme.danger,
-                fontWeight: "700",
-                fontSize: "18px",
-                marginBottom: "12px",
-                display: "block",
+                padding: "10px 20px",
+                fontWeight: "600",
+                width: "320px",
               }}
             >
-              Detected Sensitive Data ({analysis.detected.length})
-            </text>
-            {analysis.detected.map((item: any, i: number) => (
-              <view
-                key={i}
-                style={{
-                  display: "flex",
-                  alignItems: "center",
-                  gap: "10px",
-                  marginBottom: "10px",
-                }}
-              >
-                <text
-                  style={{
-                    background: theme.tagBg,
-                    borderRadius: "8px",
-                    padding: "2px 8px",
-                    fontSize: "13px",
-                    color: theme.tagText,
-                  }}
-                >
-                  {item.type}
-                </text>
-                <text
-                  style={{
-                    fontWeight: "600",
-                    fontSize: "15px",
-                    color: theme.text,
-                    letterSpacing: 0.5,
-                  }}
-                >
-                  {item.value}
-                </text>
-              </view>
-            ))}
+              {loading ? "Redacting..." : "Redact"}
+            </Button>
           </view>
         </>
       )}
 
       <Toast
         message={
-          analysis && analysis.detected
-            ? `Sensitive Data Detected\nFound ${analysis.detected.length} instances`
+          analysis && detected.length
+            ? `Sensitive Data Detected\nFound ${detected.length} instances`
             : ""
         }
         show={showToast}

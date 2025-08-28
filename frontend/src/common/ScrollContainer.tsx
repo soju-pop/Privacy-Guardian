@@ -13,7 +13,7 @@ export function ScrollContainer({ children }: { children: any }) {
                 background: theme.background,
                 borderRadius: theme.borderRadius,
                 boxShadow: theme.boxShadow,
-                height: "80vh",
+                height: "75vh",
             }}
         >
             <view
