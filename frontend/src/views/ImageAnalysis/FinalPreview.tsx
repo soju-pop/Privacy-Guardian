@@ -6,11 +6,24 @@ export function FinalPreview({ src }: { src: string }) {
     if (!src) return null;
 
     return (
-        <view style={{ marginBottom: "20px", textAlign: "center" }}>
+        <view
+            style={{
+                background: theme.previewBg,
+                borderRadius: theme.borderRadius,
+                padding: "16px",
+                marginBottom: "20px",
+            }}
+        >
+            <text style={{ fontWeight: "600", color: theme.text }}>
+                Redacted Preview:
+            </text>
             <image
                 src={src}
+                auto-size={true}
+                mode="aspectFit"
                 style={{
-                    maxWidth: "100%",
+                    width: "100%",
+                    marginTop: "10px",
                     borderRadius: theme.borderRadius,
                     boxShadow: theme.boxShadow,
                 }}

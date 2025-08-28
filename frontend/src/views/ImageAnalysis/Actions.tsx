@@ -6,7 +6,8 @@ import { useTheme } from "../../theme/ThemeProvider.tsx";
 interface ImageAnalysisActionsProps {
     file: string | null;
     showModal: boolean;
-    loading: boolean;
+    analysisLoading: boolean;
+    redactingLoading: boolean;
     onUpload: () => void;
     onRemove: () => void;
     onAnalyze: () => void;
@@ -18,7 +19,8 @@ interface ImageAnalysisActionsProps {
 export function ImageAnalysisActions({
     file,
     showModal,
-    loading,
+    analysisLoading,
+    redactingLoading,
     onUpload,
     onRemove,
     onAnalyze,
@@ -41,7 +43,7 @@ export function ImageAnalysisActions({
             <view style={{ display: "flex", justifyContent: "center", marginBottom: "20px" }}>
                 <Button
                     bindtap={onAnalyze}
-                    disabled={loading || !file}
+                    disabled={analysisLoading || redactingLoading || !file}
                     style={{
                         background: theme.primary,
                         borderRadius: theme.borderRadius,
@@ -50,7 +52,7 @@ export function ImageAnalysisActions({
                         width: "320px",
                     }}
                 >
-                    {loading ? (analysis ? "Reanalyzing..." : "Analyzing...") : (analysis ? "Reanalyze" : "Analyze")}
+                    {analysisLoading ? (analysis ? "Reanalyzing..." : "Analyzing...") : (analysis ? "Reanalyze" : "Analyze")}
                 </Button>
             </view>
         </>
