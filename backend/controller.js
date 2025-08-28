@@ -13,12 +13,8 @@ exports.ner = async (req, res) => {
 
 exports.vlm = async (req, res) => {
   try {
-    if (!req.file) return res.status(400).json({ error: 'No file uploaded' });
-    const formData = new FormData();
-    formData.append('file', req.file.buffer, req.file.originalname);
-    const response = await axios.post(`${MODEL_URL}/vlm`, formData, {
-      headers: formData.getHeaders()
-    });
+    const { image } = req.body;
+    const response = await axios.post(`${MODEL_URL}/ner`, { image });
     res.json(response.data);
   } catch (err) {
     res.status(500).json({ error: err.message });
