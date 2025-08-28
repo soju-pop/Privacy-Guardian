@@ -3,8 +3,12 @@ import type { ReactNode } from "@lynx-js/react";
 
 import { useToast } from "./ToastContext.tsx";
 import { imageFileToBase64 } from "../utils/image.ts";
-import type { ImageAnalysis } from "../types/ImageAnalysis.ts";
+import {
+  mapImageAnalysisResponse,
+  type ImageAnalysis,
+} from "../types/ImageAnalysis.ts";
 import type { ImageRedact } from "../types/ImageRedact.ts";
+import type { ImageAnalysisResponseDto } from "../types/ImageAnalysisResponseDto.ts";
 
 interface ImageAnalysisState {
   file: any;
@@ -74,37 +78,30 @@ export function ImageAnalysisProvider({ children }: { children: ReactNode }) {
 
     try {
       // TODO: Remove this example code
-      (async () => {
-        const base64 = await imageFileToBase64(file);
+      const base64 = await imageFileToBase64(file);
 
-        const apiUrl = "http://localhost:4000/vlm";
-        const response = await fetch(apiUrl, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            img: base64,
-          }),
+      const apiUrl = "http://localhost:4000/vlm";
+      const response = await fetch(apiUrl, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          img: base64,
+        }),
+      });
+
+      const result = (await response.json()) as ImageAnalysisResponseDto;
+
+      const mappedResult = mapImageAnalysisResponse(result);
+
+      setAnalysis(mappedResult);
+      setAnalysisLoading(false);
+      if (mappedResult.detected && mappedResult.detected.length > 0) {
+        showToast({
+          message: `Sensitive Data Detected\nFound ${mappedResult.detected.length} instances`,
         });
-      })();
-
-      // TODO: Call the backend API to analyse the image with base64
-      setTimeout(() => {
-        const result: ImageAnalysis = {
-          detected: [
-            { type: "FACE", value: "Detected face", checked: true },
-            { type: "LICENSE_PLATE", value: "ABC-1234", checked: true },
-          ],
-        };
-        setAnalysis(result);
-        setAnalysisLoading(false);
-        if (result.detected && result.detected.length > 0) {
-          showToast({
-            message: `Sensitive Data Detected\nFound ${result.detected.length} instances`,
-          });
-        }
-      }, 1200);
+      }
     } catch (error) {
       showToast({
         message: `Error fetching image: ${error}`,
