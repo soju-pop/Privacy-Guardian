@@ -8,6 +8,7 @@ import { Header } from "../common/Header.tsx";
 export function MainView() {
   const [tab, setTab] = useState("text");
   const theme = useTheme();
+  
   return (
     <view
       style={{
@@ -46,7 +47,7 @@ export function MainView() {
               fontSize: "16px",
               borderBottom:
                 tab === "text" ? `3px solid ${theme.secondary}` : "3px solid transparent",
-              background: tab === "text" ? theme.card : "transparent",
+              background: tab === "text" ? theme.tab : "transparent",
               cursor: "pointer",
               display: "flex",
               alignItems: "center",
@@ -62,7 +63,7 @@ export function MainView() {
               padding: "16px",
               fontWeight: "600",
               fontSize: "16px",
-              background: tab === "image" ? theme.card : "transparent",
+              background: tab === "image" ? theme.tab : "transparent",
               borderBottom:
                 tab === "image" ? `3px solid ${theme.secondary}` : "3px solid transparent",
               cursor: "pointer",

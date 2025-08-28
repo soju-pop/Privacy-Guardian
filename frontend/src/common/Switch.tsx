@@ -2,6 +2,7 @@ import { useTheme } from '../theme/ThemeProvider.tsx';
 
 export function Switch({ checked, onChange }: { checked: boolean; onChange: (value: boolean) => void }) {
   const theme = useTheme();
+
   return (
     <view bindtap={() => onChange(!checked)} style={{ display: 'flex', alignItems: 'center', cursor: 'pointer' }}>
       <view
