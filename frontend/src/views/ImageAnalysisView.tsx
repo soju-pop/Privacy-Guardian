@@ -18,7 +18,6 @@ export function ImageAnalysisView() {
     setShowToast,
     showModal,
     setShowModal,
-    detected,
     redactedPreview,
     redactingLoading,
     handleSelect,
@@ -28,7 +27,6 @@ export function ImageAnalysisView() {
     handleToggleDetected,
     handleRedact,
   } = useImageAnalysis();
-  const theme = useTheme();
 
   return (
     <ScrollContainer>
@@ -51,9 +49,9 @@ export function ImageAnalysisView() {
 
       {analysis && (
         <>
-          <ImageAnalysisDetected detected={detected} onToggle={handleToggleDetected} />
+          <ImageAnalysisDetected detected={analysis.detected} onToggle={handleToggleDetected} />
           <RedactSection
-            detected={detected}
+            detected={analysis.detected}
             redactedPreview={redactedPreview}
             redactingLoading={redactingLoading}
             analysisLoading={analysisLoading}
@@ -64,8 +62,8 @@ export function ImageAnalysisView() {
 
       <Toast
         message={
-          analysis && detected.length
-            ? `Sensitive Data Detected\nFound ${detected.length} instances`
+          analysis && analysis.detected.length
+            ? `Sensitive Data Detected\nFound ${analysis.detected.length} instances`
             : ""
         }
         show={showToast}

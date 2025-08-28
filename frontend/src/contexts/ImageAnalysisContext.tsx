@@ -17,8 +17,6 @@ interface ImageAnalysisState {
     setShowToast: (s: boolean) => void;
     showModal: boolean;
     setShowModal: (s: boolean) => void;
-    detected: DetectedImageItem[];
-    setDetected: (d: DetectedImageItem[]) => void;
     redactedPreview: ImageRedact | null;
     setRedactedPreview: (r: ImageRedact | null) => void;
     redactingLoading: boolean;
@@ -45,7 +43,6 @@ export function ImageAnalysisProvider({ children }: { children: ReactNode }) {
     const [analysisLoading, setAnalysisLoading] = useState(false);
     const [showToast, setShowToast] = useState(false);
     const [showModal, setShowModal] = useState(false);
-    const [detected, setDetected] = useState<DetectedImageItem[]>([]);
     const [redactedPreview, setRedactedPreview] = useState<ImageRedact | null>(null);
     const [redactingLoading, setRedactingLoading] = useState(false);
 
@@ -57,14 +54,12 @@ export function ImageAnalysisProvider({ children }: { children: ReactNode }) {
         setFile(img);
         setShowModal(false);
         setAnalysis(null);
-        setDetected([]);
         setRedactedPreview(null);
     }
 
     function handleRemove() {
         setFile(null);
         setAnalysis(null);
-        setDetected([]);
         setRedactedPreview(null);
     }
 
@@ -81,7 +76,6 @@ export function ImageAnalysisProvider({ children }: { children: ReactNode }) {
                 ],
             };
             setAnalysis(result);
-            setDetected(result.detected);
             setAnalysisLoading(false);
             if (result.detected && result.detected.length > 0) {
                 setShowToast(true);
@@ -90,7 +84,11 @@ export function ImageAnalysisProvider({ children }: { children: ReactNode }) {
     }
 
     function handleToggleDetected(idx: number) {
-        setDetected(detected => detected.map((item, i) => i === idx ? { ...item, checked: !item.checked } : item));
+        setAnalysis(analysis => {
+            if (!analysis) return null;
+            const detected = analysis.detected.map((item, i) => i === idx ? { ...item, checked: !item.checked } : item);
+            return { ...analysis, detected };
+        });
     }
 
     function handleRedact() {
@@ -116,8 +114,6 @@ export function ImageAnalysisProvider({ children }: { children: ReactNode }) {
                 setShowToast,
                 showModal,
                 setShowModal,
-                detected,
-                setDetected,
                 redactedPreview,
                 setRedactedPreview,
                 redactingLoading,
