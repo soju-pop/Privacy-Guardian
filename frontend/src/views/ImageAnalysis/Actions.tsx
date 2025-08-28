@@ -10,7 +10,7 @@ interface ImageAnalysisActionsProps {
     redactingLoading: boolean;
     onUpload: () => void;
     onRemove: () => void;
-    onAnalyze: () => void;
+    onAnalyse: () => void;
     onModalClose: () => void;
     onModalSelect: (img: string) => void;
     analysis: any;
@@ -23,7 +23,7 @@ export function ImageAnalysisActions({
     redactingLoading,
     onUpload,
     onRemove,
-    onAnalyze,
+    onAnalyse,
     onModalClose,
     onModalSelect,
     analysis,
@@ -42,7 +42,7 @@ export function ImageAnalysisActions({
             />
             <view style={{ display: "flex", justifyContent: "center", marginBottom: "20px" }}>
                 <Button
-                    bindtap={onAnalyze}
+                    bindtap={onAnalyse}
                     disabled={analysisLoading || redactingLoading || !file}
                     style={{
                         background: theme.primary,
@@ -52,7 +52,7 @@ export function ImageAnalysisActions({
                         width: "320px",
                     }}
                 >
-                    {analysisLoading ? (analysis ? "Reanalyzing..." : "Analyzing...") : (analysis ? "Reanalyze" : "Analyze")}
+                    {analysisLoading ? (analysis ? "Reanalysing..." : "Analysing...") : (analysis ? "Reanalyse" : "Analyse")}
                 </Button>
             </view>
         </>
