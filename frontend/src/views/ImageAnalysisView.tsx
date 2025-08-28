@@ -1,13 +1,15 @@
 import { useState } from "@lynx-js/react";
 
+
+import { useTheme } from "../theme/ThemeProvider.tsx";
 import { Button } from "../common/Button.tsx";
 import { Toast } from "../common/Toast.tsx";
-
 export function ImageAnalysisView() {
   const [file, setFile] = useState<any>(null);
   const [analysis, setAnalysis] = useState<any>(null);
   const [loading, setLoading] = useState(false);
   const [showToast, setShowToast] = useState(false);
+  const theme = useTheme();
 
   function analyzeImage() {
     if (!file) return;
@@ -34,35 +36,33 @@ export function ImageAnalysisView() {
       style={{
         flex: 1,
         overflow: "auto",
-        maxWidth: "720px",
         margin: "0 auto",
-        background: "#161616",
-        borderRadius: "20px",
-        boxShadow: "0 4px 20px #0006",
-        padding: "24px",
+        background: theme.background,
+        borderRadius: theme.borderRadius,
+        boxShadow: theme.boxShadow,
         height: "80vh",
       }}
     >
       <view
         style={{
-          background: "#0f0f0f",
+          background: theme.card,
           minHeight: "100vh",
           padding: "20px",
-          color: "#fff",
-          fontFamily: "Inter, sans-serif",
+          color: theme.text,
+          fontFamily: theme.fontFamily,
         }}
       >
         <view style={{ marginBottom: "24px" }}>
           <text
             style={{
               fontWeight: "800",
-              fontSize: "26px",
-              color: "#fff",
+              fontSize: "24px",
+              color: theme.text,
             }}
           >
             Image PII Detection
           </text>
-          <text style={{ fontSize: "14px", color: "#aaa" }}>
+          <text style={{ fontSize: "14px", color: theme.muted }}>
             Protect sensitive data in your images
           </text>
         </view>
@@ -73,7 +73,7 @@ export function ImageAnalysisView() {
           onChange={(e: any) => setFile(e.target.files[0])}
           style={{
             marginBottom: "20px",
-            color: "#fff",
+            color: theme.inputTextColor,
           }}
         />
 
@@ -82,10 +82,11 @@ export function ImageAnalysisView() {
             bindtap={analyzeImage}
             disabled={loading || !file}
             style={{
-              background: "#ff0050",
-              borderRadius: "12px",
+              background: theme.primary,
+              borderRadius: theme.borderRadius,
               padding: "10px 20px",
               fontWeight: "600",
+              width: "500px",
             }}
           >
             {loading ? "Analyzing..." : "Analyze Image"}
@@ -105,24 +106,24 @@ export function ImageAnalysisView() {
                 alt="Uploaded preview"
                 style={{
                   maxWidth: "100%",
-                  borderRadius: "12px",
-                  boxShadow: "0 2px 12px #0009",
+                  borderRadius: theme.borderRadius,
+                  boxShadow: theme.boxShadow,
                 }}
               />
             </view>
 
             <view
               style={{
-                background: "#2a0f12",
-                border: "1px solid #ff0050",
-                borderRadius: "12px",
+                background: theme.highlight,
+                border: `1px solid ${theme.primary}`,
+                borderRadius: theme.borderRadius,
                 padding: "18px",
                 marginBottom: "20px",
               }}
             >
               <text
                 style={{
-                  color: "#ff4d6d",
+                  color: theme.danger,
                   fontWeight: "700",
                   fontSize: "18px",
                   marginBottom: "12px",
@@ -143,11 +144,11 @@ export function ImageAnalysisView() {
                 >
                   <text
                     style={{
-                      background: "#00f2ea22",
+                      background: theme.tagBg,
                       borderRadius: "8px",
                       padding: "2px 8px",
                       fontSize: "13px",
-                      color: "#00f2ea",
+                      color: theme.tagText,
                     }}
                   >
                     {item.type}
@@ -156,7 +157,7 @@ export function ImageAnalysisView() {
                     style={{
                       fontWeight: "600",
                       fontSize: "15px",
-                      color: "#fff",
+                      color: theme.text,
                       letterSpacing: 0.5,
                     }}
                   >

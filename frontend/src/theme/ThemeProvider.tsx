@@ -9,6 +9,7 @@ const theme = {
   text: "#fff",
   textSecondary: "#000",
   fontFamily: "Inter, sans-serif",
+  tab: "#1f1f1f",
   card: "#0f0f0f",
   cardAlt: "#1a1a1a",
   highlight: "#2a0f12",
