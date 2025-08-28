@@ -9,6 +9,7 @@ export function Toast({ message, show, duration = 2500, onClose }: { message: st
   }, [show, duration, onClose]);
 
   if (!show) return null;
+
   return (
     <view style={{
       position: 'fixed',

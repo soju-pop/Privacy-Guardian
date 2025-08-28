@@ -1,26 +1,50 @@
 import { useState } from "@lynx-js/react";
 
+
+import { useTheme } from "../theme/ThemeProvider.tsx";
 import { Button } from "../common/Button.tsx";
 import { Toast } from "../common/Toast.tsx";
+import { sampleImages, SampleImagePickerModal } from "../components/SampleImagePickerModal.tsx";
+import { ScrollContainer } from "../common/ScrollContainer.tsx";
+import { SectionHeader } from "../common/SectionHeader.tsx";
+import { ImageAnalysisActions } from "./ImageAnalysis/Actions.tsx";
+import { ImageAnalysisDetected } from "./ImageAnalysis/Detected.tsx";
+import { FinalPreview } from "./ImageAnalysis/FinalPreview.tsx";
 
 export function ImageAnalysisView() {
   const [file, setFile] = useState<any>(null);
   const [analysis, setAnalysis] = useState<any>(null);
   const [loading, setLoading] = useState(false);
   const [showToast, setShowToast] = useState(false);
+  const [showModal, setShowModal] = useState(false);
+  const [detected, setDetected] = useState<any[]>([]);
+  const [redactedPreview, setRedactedPreview] = useState<string>("");
+  const theme = useTheme();
+
+  function handleUpload() {
+    setShowModal(true);
+  }
+
+  function handleRemove() {
+    setFile(null);
+    setAnalysis(null);
+    setDetected([]);
+    setRedactedPreview("");
+  }
 
   function analyzeImage() {
     if (!file) return;
     setLoading(true);
     setTimeout(() => {
       const result = {
-        preview: URL.createObjectURL(file),
+        preview: file,
         detected: [
-          { type: "FACE", value: "Detected face" },
-          { type: "LICENSE_PLATE", value: "ABC-1234" },
+          { type: "FACE", value: "Detected face", checked: true },
+          { type: "LICENSE_PLATE", value: "ABC-1234", checked: true },
         ],
       };
       setAnalysis(result);
+      setDetected(result.detected);
       setLoading(false);
       if (result.detected && result.detected.length > 0) {
         setShowToast(true);
@@ -28,156 +52,73 @@ export function ImageAnalysisView() {
     }, 1200);
   }
 
+  function handleToggleDetected(idx: number) {
+    setDetected(detected => detected.map((item, i) => i === idx ? { ...item, checked: !item.checked } : item));
+  }
+
+  function handleRedact() {
+    setLoading(true);
+    setTimeout(() => {
+      setRedactedPreview(file + "?redacted=" + detected.filter(d => d.checked).map(d => d.type).join(","));
+      setLoading(false);
+    }, 1000);
+  }
+
   return (
-    <scroll-view
-      scroll-orientation="vertical"
-      style={{
-        flex: 1,
-        overflow: "auto",
-        maxWidth: "720px",
-        margin: "0 auto",
-        background: "#161616",
-        borderRadius: "20px",
-        boxShadow: "0 4px 20px #0006",
-        padding: "24px",
-        height: "80vh",
-      }}
-    >
-      <view
-        style={{
-          background: "#0f0f0f",
-          minHeight: "100vh",
-          padding: "20px",
-          color: "#fff",
-          fontFamily: "Inter, sans-serif",
+    <ScrollContainer>
+      <SectionHeader
+        title="Image PII Detection"
+        subtitle="Protect sensitive data in your images"
+      />
+      <ImageAnalysisActions
+        file={file}
+        showModal={showModal}
+        loading={loading}
+        onUpload={handleUpload}
+        onRemove={handleRemove}
+        onAnalyze={analyzeImage}
+        onModalClose={() => setShowModal(false)}
+        onModalSelect={img => {
+          setFile(img);
+          setShowModal(false);
+          setAnalysis(null);
+          setDetected([]);
+          setRedactedPreview("");
         }}
-      >
-        <view style={{ marginBottom: "24px" }}>
-          <text
-            style={{
-              fontWeight: "800",
-              fontSize: "26px",
-              color: "#fff",
-            }}
-          >
-            Image PII Detection
-          </text>
-          <text style={{ fontSize: "14px", color: "#aaa" }}>
-            Protect sensitive data in your images
-          </text>
-        </view>
+        analysis={analysis}
+      />
 
-        <input
-          type="file"
-          accept="image/*"
-          onChange={(e: any) => setFile(e.target.files[0])}
-          style={{
-            marginBottom: "20px",
-            color: "#fff",
-          }}
-        />
-
-        <view style={{ display: "flex", gap: "12px", marginBottom: "20px" }}>
-          <Button
-            bindtap={analyzeImage}
-            disabled={loading || !file}
-            style={{
-              background: "#ff0050",
-              borderRadius: "12px",
-              padding: "10px 20px",
-              fontWeight: "600",
-            }}
-          >
-            {loading ? "Analyzing..." : "Analyze Image"}
-          </Button>
-        </view>
-
-        {analysis && (
-          <>
-            <view
+      {analysis && (
+        <>
+          <FinalPreview src={redactedPreview || analysis.preview} />
+          <ImageAnalysisDetected detected={detected} onToggle={handleToggleDetected} />
+          <view style={{ display: "flex", justifyContent: "center", marginBottom: "20px" }}>
+            <Button
+              bindtap={handleRedact}
+              disabled={loading || !detected.some(d => d.checked)}
               style={{
-                marginBottom: "20px",
-                textAlign: "center",
+                background: theme.danger,
+                borderRadius: theme.borderRadius,
+                padding: "10px 20px",
+                fontWeight: "600",
+                width: "320px",
               }}
             >
-              <img
-                src={analysis.preview}
-                alt="Uploaded preview"
-                style={{
-                  maxWidth: "100%",
-                  borderRadius: "12px",
-                  boxShadow: "0 2px 12px #0009",
-                }}
-              />
-            </view>
+              {loading ? "Redacting..." : "Redact"}
+            </Button>
+          </view>
+        </>
+      )}
 
-            <view
-              style={{
-                background: "#2a0f12",
-                border: "1px solid #ff0050",
-                borderRadius: "12px",
-                padding: "18px",
-                marginBottom: "20px",
-              }}
-            >
-              <text
-                style={{
-                  color: "#ff4d6d",
-                  fontWeight: "700",
-                  fontSize: "18px",
-                  marginBottom: "12px",
-                  display: "block",
-                }}
-              >
-                Detected Sensitive Data ({analysis.detected.length})
-              </text>
-              {analysis.detected.map((item: any, i: number) => (
-                <view
-                  key={i}
-                  style={{
-                    display: "flex",
-                    alignItems: "center",
-                    gap: "10px",
-                    marginBottom: "10px",
-                  }}
-                >
-                  <text
-                    style={{
-                      background: "#00f2ea22",
-                      borderRadius: "8px",
-                      padding: "2px 8px",
-                      fontSize: "13px",
-                      color: "#00f2ea",
-                    }}
-                  >
-                    {item.type}
-                  </text>
-                  <text
-                    style={{
-                      fontWeight: "600",
-                      fontSize: "15px",
-                      color: "#fff",
-                      letterSpacing: 0.5,
-                    }}
-                  >
-                    {item.value}
-                  </text>
-                </view>
-              ))}
-            </view>
-          </>
-        )}
-
-        <Toast
-          message={
-            analysis && analysis.detected
-              ? `Sensitive Data Detected\nFound ${analysis.detected.length} instances`
-              : ""
-          }
-          show={showToast}
-          onClose={() => setShowToast(false)}
-        />
-      </view>
-    </scroll-view>
+      <Toast
+        message={
+          analysis && detected.length
+            ? `Sensitive Data Detected\nFound ${detected.length} instances`
+            : ""
+        }
+        show={showToast}
+        onClose={() => setShowToast(false)}
+      />
+    </ScrollContainer>
   );
 }
