@@ -60,7 +60,7 @@ export function TextAnalysisView() {
                         style={{
                             fontWeight: "800",
                             fontSize: "24px",
-                            color: theme.headerText,
+                            color: theme.text,
                         }}
                     >
                         Text PII Detection
@@ -84,7 +84,7 @@ export function TextAnalysisView() {
                         fontSize: "16px",
                         marginBottom: "20px",
                         background: theme.inputBg,
-                        color: theme.inputText,
+                        color: theme.inputTextColor,
                     }}
                 />
 
@@ -105,7 +105,7 @@ export function TextAnalysisView() {
                     <Button
                         style={{
                             background: theme.secondary,
-                            color: theme.text,
+                            color: theme.textSecondary,
                             borderRadius: theme.borderRadius,
                             padding: "10px 20px",
                             fontWeight: "600",

@@ -22,7 +22,7 @@ export function MainView() {
     >
       <view
         style={{
-          padding: "0 8px 0 8px"
+          padding: "10px 24px 0 0"
         }}>
         <Header />
         <view
@@ -53,7 +53,7 @@ export function MainView() {
               justifyContent: "center",
             }}
           >
-            <text style={{ color: theme.headerText }}>Text Analysis</text>
+            <text style={{ color: theme.text }}>Text Analysis</text>
           </view>
           <view
             bindtap={() => setTab("image")}
@@ -71,10 +71,10 @@ export function MainView() {
               justifyContent: "center",
             }}
           >
-            <text style={{ color: theme.headerText }}>Image Analysis</text>
+            <text style={{ color: theme.text }}>Image Analysis</text>
           </view>
         </view>
-        <view style={{ minHeight: "400px" }}>
+        <view style={{ minHeight: "400px", width: "100%", margin: "auto" }}>
           {tab === "text" ? <TextAnalysisView /> : <ImageAnalysisView />}
         </view>
       </view>

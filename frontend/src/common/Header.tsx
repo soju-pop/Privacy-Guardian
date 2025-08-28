@@ -2,16 +2,14 @@ import lynxLogo from '../assets/lynx-logo.png';
 import { useTheme } from '../theme/ThemeProvider.tsx';
 
 export function Header() {
-  const { headerText, headerSubText, card, borderRadius } = useTheme();
+  const { headerTextColor: headerText, headerSubTextColor: headerSubText, card, borderRadius } = useTheme();
   return (
     <view style={{
       display: 'flex',
       alignItems: 'center',
       gap: '18px',
-      padding: '24px 0 0 0',
       maxWidth: '900px',
       margin: '0 auto',
-      background: card,
       borderRadius: borderRadius,
     }}>
       <image src={lynxLogo} style={{ width: '38px', height: '38px', marginRight: '10px' }} />
