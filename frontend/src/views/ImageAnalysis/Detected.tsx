@@ -1,14 +1,9 @@
 import { Checkbox } from "../../common/Checkbox.tsx";
 import { useTheme } from "../../theme/ThemeProvider.tsx";
-
-interface DetectedItem {
-    type: string;
-    value: string;
-    checked: boolean;
-}
+import type { DetectedImageItem } from "../../types/DetectedImageItem.ts";
 
 interface DetectedProps {
-    detected: DetectedItem[];
+    detected: DetectedImageItem[];
     onToggle: (idx: number) => void;
 }
 
@@ -38,7 +33,7 @@ export function ImageAnalysisDetected({ detected, onToggle }: DetectedProps) {
             >
                 Detected Sensitive Data ({detected.length})
             </text>
-            
+
             {detected.map((item, i) => (
                 <view
                     key={i}
