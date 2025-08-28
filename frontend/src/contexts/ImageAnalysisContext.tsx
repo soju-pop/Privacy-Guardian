@@ -2,10 +2,10 @@
 import { createContext, useContext, useState } from "@lynx-js/react";
 import type { ReactNode } from "@lynx-js/react";
 
-import type { DetectedImageItem } from "../types/DetectedImageItem.ts";
+import { useToast } from "./ToastContext.tsx";
+import { imageFileToBase64 } from "../utils/image.ts";
 import type { ImageAnalysis } from "../types/ImageAnalysis.ts";
 import type { ImageRedact } from "../types/ImageRedact.ts";
-import { useToast } from "./ToastContext.tsx";
 
 interface ImageAnalysisState {
     file: any;
@@ -67,40 +67,40 @@ export function ImageAnalysisProvider({ children }: { children: ReactNode }) {
         setAnalysisLoading(true);
 
         try {
-            // Convert image URL to base64
-            const response = await fetch(file);
-            const blob = await response.blob();
-            const reader = new FileReader();
+            // TODO: Remove this example code
+            (async () => {
+                const base64 = await imageFileToBase64(file);
 
-            reader.onload = () => {
-                const base64 = reader.result as string;
-
-                // TODO: Call the backend API to analyse the image with base64
-                setTimeout(() => {
-                    const result: ImageAnalysis = {
-                        detected: [
-                            { type: "FACE", value: "Detected face", checked: true },
-                            { type: "LICENSE_PLATE", value: "ABC-1234", checked: true },
-                        ],
-                    };
-                    setAnalysis(result);
-                    setAnalysisLoading(false);
-                    if (result.detected && result.detected.length > 0) {
-                        showToast({
-                            message: `Sensitive Data Detected\nFound ${result.detected.length} instances`
-                        });
-                    }
-                }, 1200);
-            };
-
-            reader.onerror = () => {
-                showToast({
-                    message: "Error converting image to base64"
+                const apiUrl = "http://localhost:4000/test";
+                await fetch(apiUrl, {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify({
+                        img: base64,
+                    }),
                 });
-                setAnalysisLoading(false);
-            };
+            })();
+            
 
-            reader.readAsDataURL(blob);
+            // TODO: Call the backend API to analyse the image with base64
+            setTimeout(() => {
+                const result: ImageAnalysis = {
+                    detected: [
+                        { type: "FACE", value: "Detected face", checked: true },
+                        { type: "LICENSE_PLATE", value: "ABC-1234", checked: true },
+                    ],
+                };
+                setAnalysis(result);
+                setAnalysisLoading(false);
+                if (result.detected && result.detected.length > 0) {
+                    showToast({
+                        message: `Sensitive Data Detected\nFound ${result.detected.length} instances`
+                    });
+                }
+            }, 1200);
+
         } catch (error) {
             showToast({
                 message: `Error fetching image: ${error}`
