@@ -47,7 +47,7 @@ export function ImageAnalysisDetected({ detected, onToggle }: DetectedProps) {
                     <Checkbox
                         checked={item.checked}
                         onChange={() => onToggle(i)}
-                        style={{ marginBottom: 10 }}
+                        style={{ marginBottom: "10px" }}
                     >
                         <text
                             style={{
@@ -56,7 +56,7 @@ export function ImageAnalysisDetected({ detected, onToggle }: DetectedProps) {
                                 padding: "2px 8px",
                                 fontSize: "13px",
                                 color: theme.tagText,
-                                marginRight: 8,
+                                marginRight: "8px",
                             }}
                         >
                             {item.type}
