@@ -71,7 +71,7 @@ export function ImageAnalysisProvider({ children }: { children: ReactNode }) {
             (async () => {
                 const base64 = await imageFileToBase64(file);
 
-                const apiUrl = "http://localhost:4000/test";
+                const apiUrl = "http://localhost:4000/vlm";
                 await fetch(apiUrl, {
                     method: "POST",
                     headers: {

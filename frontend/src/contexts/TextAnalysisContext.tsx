@@ -29,28 +29,29 @@ export function TextAnalysisProvider({ children }: { children: ReactNode }) {
     const [loading, setLoading] = useState(false);
     const { showToast } = useToast();
 
-    function handleAnalyse() {
+    async function handleAnalyse() {
         setLoading(true);
 
         // TODO: Call the backend API to analyse the text
-        setTimeout(() => {
-            const result: TextImageAnalysis = {
-                preview:
-                    "Hi my name is Fikri and this is my phone number [PHONE_NUMBER] and my credit card number is [CREDIT_CARD_NUMBER].",
-                detected: [
-                    { type: "PHONE", value: "6582223231" },
-                    { type: "CREDIT_CARD", value: "1312 12312" },
-                    { type: "PHONE", value: "3123 1231" },
-                ],
-            };
-            setAnalysis(result);
-            setLoading(false);
-            if (result.detected && result.detected.length > 0) {
-                showToast({
-                    message: `PII Detected\nFound ${result.detected.length} sensitive data instances`
-                });
-            }
-        }, 800);
+        const apiUrl = "http://localhost:4000/ner";
+        const response =  await fetch(apiUrl, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                    text: input,
+                }),
+            });
+
+        const result = await response.json() as TextImageAnalysis;
+        setAnalysis(result);
+        setLoading(false);
+        if (result.detected && result.detected.length > 0) {
+            showToast({
+                message: `PII Detected\nFound ${result.detected.length} sensitive data instances`
+            });
+        };
     }
 
     return (
