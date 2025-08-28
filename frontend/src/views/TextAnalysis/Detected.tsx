@@ -1,12 +1,8 @@
 import { useTheme } from "../../theme/ThemeProvider.tsx";
-
-interface DetectedItem {
-    type: string;
-    value: string;
-}
+import type { DetectedTextItem } from "../../types/DetectedTextItem.ts";
 
 interface DetectedProps {
-    detected: DetectedItem[];
+    detected: DetectedTextItem[];
 }
 
 export function TextAnalysisDetected({ detected }: DetectedProps) {

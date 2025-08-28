@@ -1,14 +1,14 @@
 import { useState } from "@lynx-js/react";
 
-import { TextAnalysisView } from "./TextAnalysisView.tsx";
 import { useTheme } from "../theme/ThemeProvider.tsx";
-import { ImageAnalysisView } from "./ImageAnalysisView.tsx";
 import { Header } from "../common/Header.tsx";
+import { ImageAnalysisView } from "./ImageAnalysisView.tsx";
+import { TextAnalysisView } from "./TextAnalysisView.tsx";
 
 export function MainView() {
   const [tab, setTab] = useState("text");
   const theme = useTheme();
-  
+
   return (
     <view
       style={{
