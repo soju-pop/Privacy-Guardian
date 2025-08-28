@@ -38,7 +38,6 @@ export function TextAnalysisView() {
             style={{
                 flex: 1,
                 overflow: "auto",
-                maxWidth: "720px",
                 margin: "0 auto",
                 background: theme.background,
                 borderRadius: theme.borderRadius,
@@ -129,9 +128,16 @@ export function TextAnalysisView() {
                     <text style={{ fontWeight: "600", color: theme.text }}>
                         Analysis Preview:
                     </text>
-                    <text style={{ display: "block", marginTop: "10px", color: theme.previewText }}>
-                        {analysis?.preview}
-                    </text>
+                    <view style={{ display: "block", marginTop: "10px" }}>
+                        {analysis?.preview
+                            ? <text style={{ color: theme.previewText }}>
+                                {analysis?.preview}
+                            </text>
+                            : <text style={{ color: theme.previewText, opacity: 0.25 }}>
+                                No preview available.
+                            </text>
+                        }
+                    </view>
                 </view>
 
                 {analysis && (
