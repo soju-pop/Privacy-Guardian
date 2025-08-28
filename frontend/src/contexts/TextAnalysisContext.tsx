@@ -51,9 +51,6 @@ export function TextAnalysisProvider({ children }: { children: ReactNode }) {
       });
 
       const result = (await response.json()) as TextImageAnalysisResponseDto;
-      showToast({
-        message: result.text,
-      });
 
       const mappedResult = mapTextImageAnalysisResponse(result);
       setAnalysis(mappedResult);
