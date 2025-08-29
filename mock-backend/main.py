@@ -31,7 +31,7 @@ class VLMRequest(BaseModel):
 
 class RedactRequest(BaseModel):
     file_path: str
-    polygon: List[List[int]]
+    polygon: List[List[List[int]]]
 
 
 # ------------------------------- Response DTOs ------------------------------ #

@@ -32,7 +32,7 @@ export function TextAnalysisActions({
         {loading ? "Analysing..." : "Analyse Text"}
       </Button>
       <Button
-        disabled={!analysis || !analysis.safe_text}
+        disabled={!analysis || !analysis.preview}
         style={{
           background: theme.secondary,
           color: theme.textSecondary,
