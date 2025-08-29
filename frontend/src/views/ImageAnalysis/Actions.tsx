@@ -8,6 +8,7 @@ interface ImageAnalysisActionsProps {
     showModal: boolean;
     analysisLoading: boolean;
     redactingLoading: boolean;
+    redactedPreview: any;
     onUpload: () => void;
     onRemove: () => void;
     onAnalyse: () => void;
@@ -21,6 +22,7 @@ export function ImageAnalysisActions({
     showModal,
     analysisLoading,
     redactingLoading,
+    redactedPreview,
     onUpload,
     onRemove,
     onAnalyse,
@@ -32,7 +34,12 @@ export function ImageAnalysisActions({
 
     return (
         <>
-            <UploadSection file={file} onUpload={onUpload} onRemove={onRemove} />
+            <UploadSection 
+                file={file} 
+                onUpload={onUpload} 
+                onRemove={onRemove}
+                redactedPreview={redactedPreview?.preview || null}
+            />
             <SampleImagePickerModal
                 show={showModal}
                 images={sampleImages}

@@ -10,6 +10,7 @@ export function Button({
 }: any) {
   const theme = useTheme();
   const buttonColor = style.color || theme.text;
+  const fontSize = style.fontSize || "14px";
   return (
     <view
       bindtap={!disabled ? bindtap : undefined}
@@ -29,7 +30,7 @@ export function Button({
       }}
       {...props}
     >
-      <text style={{ color: buttonColor }}>{children}</text>
+      <text style={{ color: buttonColor, fontSize: fontSize }}>{children}</text>
     </view>
   );
 }
