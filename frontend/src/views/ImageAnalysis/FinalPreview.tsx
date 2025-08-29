@@ -5,6 +5,8 @@ export function FinalPreview({ src }: { src: string }) {
 
     if (!src) return null;
 
+    const cleanSrc = src.trim();
+        
     return (
         <view
             style={{
@@ -18,7 +20,7 @@ export function FinalPreview({ src }: { src: string }) {
                 Redacted Preview:
             </text>
             <image
-                src={src}
+                src={cleanSrc}
                 auto-size={true}
                 mode="aspectFit"
                 style={{
