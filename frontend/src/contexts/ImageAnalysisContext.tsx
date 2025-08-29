@@ -2,13 +2,13 @@ import { createContext, useContext, useState } from "@lynx-js/react";
 import type { ReactNode } from "@lynx-js/react";
 
 import { useToast } from "./ToastContext.tsx";
+import { useVlmApi } from "../hooks/useApi.ts";
 import { imageFileToBase64 } from "../utils/image.ts";
 import {
   mapImageAnalysisResponse,
   type ImageAnalysis,
 } from "../types/ImageAnalysis.ts";
 import type { ImageRedact } from "../types/ImageRedact.ts";
-import type { ImageAnalysisResponseDto } from "../types/ImageAnalysisResponseDto.ts";
 
 interface ImageAnalysisState {
   file: any;
@@ -54,6 +54,7 @@ export function ImageAnalysisProvider({ children }: { children: ReactNode }) {
   );
   const [redactingLoading, setRedactingLoading] = useState(false);
   const { showToast } = useToast();
+  const vlmApi = useVlmApi();
 
   function handleUpload() {
     setShowModal(true);
@@ -77,26 +78,18 @@ export function ImageAnalysisProvider({ children }: { children: ReactNode }) {
     setAnalysisLoading(true);
 
     try {
-      // TODO: Remove this example code
       const base64 = await imageFileToBase64(file);
-
-      const apiUrl = "http://localhost:4000/vlm";
-      const response = await fetch(apiUrl, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          img: base64,
-        }),
+      const result = await vlmApi.call({
+        image_base64: base64,
       });
 
-      const result = (await response.json()) as ImageAnalysisResponseDto;
+      setAnalysisLoading(false);
+      if (!result) {
+        return;
+      }
 
       const mappedResult = mapImageAnalysisResponse(result);
-
       setAnalysis(mappedResult);
-      setAnalysisLoading(false);
       if (mappedResult.detected && mappedResult.detected.length > 0) {
         showToast({
           message: `Sensitive Data Detected\nFound ${mappedResult.detected.length} instances`,
@@ -104,7 +97,7 @@ export function ImageAnalysisProvider({ children }: { children: ReactNode }) {
       }
     } catch (error) {
       showToast({
-        message: `Error fetching image: ${error}`,
+        message: `Error processing image: ${error}`,
       });
       setAnalysisLoading(false);
     }

@@ -1,9 +1,9 @@
 import { createContext, useContext, useState } from "@lynx-js/react";
 import type { ReactNode } from "@lynx-js/react";
 
+import { useNerApi } from "../hooks/useApi.ts";
 import { useToast } from "./ToastContext.tsx";
 import type { TextImageAnalysis } from "../types/TextImageAnalysis.ts";
-import type { TextImageAnalysisResponseDto } from "../types/TextImageAnalysisResponseDto.ts";
 import { mapTextImageAnalysisResponse } from "../types/TextImageAnalysis.ts";
 
 interface TextAnalysisState {
@@ -33,28 +33,23 @@ export function TextAnalysisProvider({ children }: { children: ReactNode }) {
   const [analysis, setAnalysis] = useState<TextImageAnalysis | null>(null);
   const [loading, setLoading] = useState(false);
   const { showToast } = useToast();
+  const nerApi = useNerApi();
 
   async function handleAnalyse() {
     setLoading(true);
 
-    // TODO: Call the backend API to analyse the text
     try {
-      const apiUrl = "http://localhost:4000/ner";
-      const response = await fetch(apiUrl, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          text: input,
-        }),
+      const result = await nerApi.call({
+        text: input,
       });
 
-      const result = (await response.json()) as TextImageAnalysisResponseDto;
+      setLoading(false);
+      if (!result) {
+        return;
+      }
 
       const mappedResult = mapTextImageAnalysisResponse(result);
       setAnalysis(mappedResult);
-      setLoading(false);
       if (mappedResult.preview && mappedResult.detected.length > 0) {
         showToast({
           message: `PII detected\nFound ${mappedResult.detected.length} sensitive data instances`,
