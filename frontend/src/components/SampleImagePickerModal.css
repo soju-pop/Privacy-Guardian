@@ -9,6 +9,17 @@
   }
 }
 
+@keyframes slideDownFull {
+  from {
+    transform: translateY(0);
+    opacity: 1;
+  }
+  to {
+    transform: translateY(100%);
+    opacity: 0.7;
+  }
+}
+
 @media (max-width: 600px) {
   .sample-image-modal-drawer {
     border-radius: 0;
