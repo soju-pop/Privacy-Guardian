@@ -1,13 +1,19 @@
 import { Checkbox } from "../../common/Checkbox.tsx";
 import { useTheme } from "../../theme/ThemeProvider.tsx";
 import type { DetectedImageItem } from "../../types/DetectedImageItem.ts";
+import type { ImageRedact } from "../../types/ImageRedact.ts";
 
 interface DetectedProps {
   detected: DetectedImageItem[];
   onToggle: (idx: number) => void;
+  redactedPreview: ImageRedact | null;
 }
 
-export function ImageAnalysisDetected({ detected, onToggle }: DetectedProps) {
+export function ImageAnalysisDetected({
+  detected,
+  onToggle,
+  redactedPreview,
+}: DetectedProps) {
   const theme = useTheme();
 
   if (!detected || detected.length === 0) return null;
@@ -48,6 +54,7 @@ export function ImageAnalysisDetected({ detected, onToggle }: DetectedProps) {
             checked={item.checked}
             onChange={() => onToggle(i)}
             style={{ marginBottom: "10px" }}
+            disabled={redactedPreview !== null}
           >
             <text
               style={{
