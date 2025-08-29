@@ -26,7 +26,9 @@ const theme = {
   inputTextColor: "#fff",
   headerTextColor: "#2563eb",
   headerSubTextColor: "#aaa",
-}
+  greenToastBg: "#22c55e",
+  greenToastText: "#fff",
+};
 
 export const ThemeContext = createContext(theme);
 

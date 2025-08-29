@@ -32,6 +32,7 @@ export function TextAnalysisActions({
         {loading ? "Analysing..." : "Analyse Text"}
       </Button>
       <Button
+        disabled={!analysis || !analysis.safe_text}
         style={{
           background: theme.secondary,
           color: theme.textSecondary,
@@ -42,7 +43,8 @@ export function TextAnalysisActions({
         }}
         bindtap={() => {
           toast.showToast({
-            message: "Safe Text copied",
+            message: "Copied text to clipboard!",
+            background: theme.greenToastBg,
           });
         }}
       >

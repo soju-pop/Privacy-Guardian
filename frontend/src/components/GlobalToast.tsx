@@ -12,6 +12,7 @@ export function GlobalToast() {
       show={isVisible}
       onClose={hideToast}
       style={toast.style}
+      background={toast.background}
     />
   );
 }
