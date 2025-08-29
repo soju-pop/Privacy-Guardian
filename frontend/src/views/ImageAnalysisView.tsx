@@ -1,4 +1,3 @@
-
 import { useImageAnalysis } from "../contexts/ImageAnalysisContext.tsx";
 
 import { ImageAnalysisActions } from "./ImageAnalysis/Actions.tsx";
@@ -46,12 +45,17 @@ export function ImageAnalysisView() {
 
       {analysis && (
         <>
-          <ImageAnalysisDetected detected={analysis.detected} onToggle={handleToggleDetected} />
+          <ImageAnalysisDetected
+            detected={analysis.detected}
+            onToggle={handleToggleDetected}
+            redactedPreview={redactedPreview}
+          />
           <RedactSection
             detected={analysis.detected}
             redactingLoading={redactingLoading}
             analysisLoading={analysisLoading}
             onRedact={handleRedact}
+            redactedPreview={redactedPreview}
           />
         </>
       )}
