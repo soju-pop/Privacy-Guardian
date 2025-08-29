@@ -6,12 +6,14 @@ interface TextAnalysisActionsProps {
   loading: boolean;
   analysis: any;
   onAnalyse: () => void;
+  input: string;
 }
 
 export function TextAnalysisActions({
   loading,
   analysis,
   onAnalyse,
+  input,
 }: TextAnalysisActionsProps) {
   const theme = useTheme();
   const toast = useToast();
@@ -20,7 +22,7 @@ export function TextAnalysisActions({
     <view style={{ display: "flex", gap: "12px", marginBottom: "20px" }}>
       <Button
         bindtap={onAnalyse}
-        disabled={loading}
+        disabled={loading || !input}
         style={{
           background: theme.primary,
           borderRadius: theme.borderRadius,

@@ -51,7 +51,7 @@ export function TextAnalysisDetected({ detected }: DetectedProps) {
               color: theme.tagText,
             }}
           >
-            {item.type}
+            {item.type.replace("_", " ")}
           </text>
           <text
             style={{

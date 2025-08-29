@@ -66,7 +66,7 @@ export function ImageAnalysisDetected({
                 marginRight: "8px",
               }}
             >
-              {item.type}
+              {item.type.replace("_", " ")}
             </text>
             <text
               style={{

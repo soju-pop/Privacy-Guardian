@@ -64,7 +64,8 @@ def analyze_text(req: NERRequest):
         text=req.text,
         entities={
             "NRIC": ["S1234567A", "T7654321B"],
-            "ADDRESS": ["Blk 123 Jurong West"]
+            "ADDRESS": ["Blk 123 Jurong West"],
+            "BANK_NUMBER": ["123-456-789"],
         }
     )
 
@@ -82,7 +83,12 @@ def analyze_image(req: VLMRequest):
                 text="Blk 123 Jurong West",
                 label="ADDRESS",
                 polygon=[[9, 10], [11, 12], [13, 14], [15, 16]]
-            )
+            ),
+            ImageResultDto(
+                text="123-456-789",
+                label="BANK_NUMBER",
+                polygon=[[17, 18], [19, 20], [21, 22], [23, 24]]
+            ),
         ],
         status="success"
     )
