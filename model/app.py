@@ -14,6 +14,7 @@ import glob
 import logging
 import sys
 import base64
+from io import BytesIO
 
 # Configure logging
 logging.basicConfig(
@@ -65,7 +66,7 @@ def clean_text(text: str):
 def regex_fallback(text):
     patterns = {
         "NRIC": re.compile(r"\b[STFGM]\d{7}[A-Z]\b", re.IGNORECASE),
-        "BANK_NUMBER": re.compile(r"\b\d{7,12}\b"),
+        "BANK_NUMBER": re.compile(r"(?<!\+)\b\d{7,12}\b"),
         "ADDRESS": re.compile(r"\b\d{1,4}\s+[A-Za-z0-9\s]+(?:Street|St|Road|Rd|Avenue|Ave|Lane|Ln|Drive|Dr|Boulevard|Blvd|Crescent|Cres|Close|Cl|Walk)\b", re.IGNORECASE),
         "CREDIT_CARD": re.compile(r"\b(?:\d[ -]*?){13,19}\b")
     }
@@ -96,8 +97,7 @@ PII_ENTITIES = [
     "ADDRESS", 
     "BANK_NUMBER", 
     "CREDIT_CARD", 
-    "NRIC", 
-    "PHONE_NUMBER"
+    "NRIC"
 ]
 
 ######################################################################## FastAPI endpoints ########################################################################
@@ -112,7 +112,7 @@ async def ner(request: NERRequest):
         "NRIC": [], 
         "BANK_NUMBER": [],
         "ADDRESS": [],
-        "CREDIT_CARD": [] 
+        "CREDIT_CARD": []
     }
     processed_text = request.text
     # Add spaCy detected entities
@@ -125,10 +125,28 @@ async def ner(request: NERRequest):
     # Fallback to regex for missing entities
     regex_entities = regex_fallback(request.text)
     for label, matches in regex_entities.items():
-        if not entities[label] and matches:
-            entities[label] = matches
-            for m in matches:
-                processed_text = processed_text.replace(m, f"[{label}]")
+        for match in matches:
+            match = match.strip()
+
+            # Skip if exact match already exists in this label
+            if match in entities[label]:
+                continue
+
+            # Skip if match is a subset of an existing entity in the same label
+            is_subset = any(match in existing for existing in entities[label])
+            if is_subset:
+                continue
+
+            # Skip if match is a substring of any entity in other labels
+            is_substring_other = any(
+                match in other
+                for other_label, vals in entities.items()
+                if other_label != label
+                for other in vals
+            )
+            if not is_substring_other:
+                entities[label].append(match)
+                processed_text = processed_text.replace(match, f"[{label}]")
 
     # Drop keys with no matches
     entities = {k: v for k, v in entities.items() if v}
@@ -158,9 +176,21 @@ async def vlm(request: VLMRequest):
         image_data = base64.b64decode(request.image_base64)
     except Exception:
         raise HTTPException(status_code=400, detail="Invalid base64 string")
+    
+    # Check if empty after decoding
+    if not image_data:
+        raise HTTPException(status_code=400, detail="Empty image data")
+
+    # Validate with Pillow before saving
+    try:
+        Image.open(BytesIO(image_data)).verify()
+    except Exception:
+        raise HTTPException(status_code=400, detail="Invalid or corrupted image data")
 
     # Save to a unique temporary file
-    input_path = f"data/temp_{next_index}.png"
+    data_dir = os.path.join(os.getcwd(), "data")
+    os.makedirs(data_dir, exist_ok=True)  # ensure it exists
+    input_path = os.path.join(data_dir, f"temp_{next_index}.png")
     with open(input_path, "wb") as f:
         f.write(image_data)
 
@@ -168,7 +198,12 @@ async def vlm(request: VLMRequest):
     if image is None:
         raise HTTPException(status_code=400, detail="Invalid image file")
 
-    entities = {"NRIC": [], "BANK_NUMBER": [], "ADDRESS": [], "CREDIT_CARD": []}
+    entities = {
+        "NRIC": [], 
+        "BANK_NUMBER": [],
+        "ADDRESS": [],
+        "CREDIT_CARD": []
+    }
     results = []
 
     # Run OCR
@@ -182,6 +217,7 @@ async def vlm(request: VLMRequest):
             doc = nlp(clean_text(text))
             sensitive = [ent for ent in doc.ents if ent.label_ in PII_ENTITIES]
 
+            # Add spaCy-detected entities
             for ent in sensitive:
                 label = ent.label_.upper()
                 if label in entities:
@@ -190,6 +226,33 @@ async def vlm(request: VLMRequest):
                         "label": label,
                         "polygon": np.array(poly, dtype=int).tolist()
                     })
+
+            # Regex fallback
+            regex_entities = regex_fallback(text)
+            for label, matches in regex_entities.items():
+                for match in matches:
+                    match = match.strip()
+
+                    # Skip if exact match already exists in this label for this OCR block
+                    if any(match == r["text"] for r in results if r["label"] == label):
+                        continue
+
+                    # Skip if match is a subset of an existing entity in the same label
+                    is_subset = any(match in r["text"] for r in results if r["label"] == label)
+                    if is_subset:
+                        continue
+
+                    # Skip if match is a substring of any entity in other labels
+                    is_substring_other = any(
+                        match in r["text"] for r in results if r["label"] != label
+                    )
+                    if not is_substring_other:
+                        entities[label].append(match)
+                        results.append({
+                            "text": match,
+                            "label": label,
+                            "polygon": np.array(poly, dtype=int).tolist()
+                        })
 
     return {
         "file_path": input_path,
