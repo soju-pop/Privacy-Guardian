@@ -1,11 +1,11 @@
-import type { ImageDedactResponseDto } from "./ImageRedactResponseDto.ts";
+import type { ImageRedactResponseDto } from "./ImageRedactResponseDto.ts";
 
 export interface ImageRedact {
   preview: string;
 }
 
-export function mapImageRedactResponse(dto: ImageDedactResponseDto): ImageRedact {
+export function mapImageRedactResponse(dto: ImageRedactResponseDto): ImageRedact {
   return {
-    preview: dto.preview,
+    preview: dto.image_base64,
   };
 }
