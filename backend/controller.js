@@ -1,11 +1,10 @@
 const axios = require("axios");
-const MODEL_URL = "http://localhost:8000";
+const MODEL_URL = "http://infra-model-1:8000";
 
 exports.ner = async (req, res) => {
   try {
     const { text } = req.body;
     const response = await axios.post(`${MODEL_URL}/ner`, { text });
-    console.log(response.data);
     res.json(response.data);
   } catch (err) {
     res.status(500).json({ error: err.message });
