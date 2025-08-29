@@ -35,6 +35,7 @@ export function ImageAnalysisView() {
         showModal={showModal}
         analysisLoading={analysisLoading}
         redactingLoading={redactingLoading}
+        redactedPreview={redactedPreview}
         onUpload={handleUpload}
         onRemove={handleRemove}
         onAnalyse={handleAnalyse}
@@ -48,7 +49,6 @@ export function ImageAnalysisView() {
           <ImageAnalysisDetected detected={analysis.detected} onToggle={handleToggleDetected} />
           <RedactSection
             detected={analysis.detected}
-            redactedPreview={redactedPreview}
             redactingLoading={redactingLoading}
             analysisLoading={analysisLoading}
             onRedact={handleRedact}
