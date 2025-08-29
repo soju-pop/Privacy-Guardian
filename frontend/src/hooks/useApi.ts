@@ -1,7 +1,11 @@
 import { useState } from "@lynx-js/react";
-import { useToast } from "../contexts/ToastContext.tsx";
 
-type ApiEndpoint = "vlm" | "ner";
+import { useToast } from "../contexts/ToastContext.tsx";
+import type { ImageAnalysisResponseDto } from "../types/ImageAnalysisResponseDto.ts";
+import type { ImageRedactResponseDto } from "../types/ImageRedactResponseDto.ts";
+import type { TextImageAnalysisResponseDto } from "../types/TextImageAnalysisResponseDto.ts";
+
+type ApiEndpoint = "ner" | "vlm" | "vlm/redact";
 
 interface ApiConfig {
   baseUrl?: string;
@@ -77,10 +81,15 @@ export function useApi<TResponse = any>(
   };
 }
 
-export function useVlmApi() {
-  return useApi<import("../types/ImageAnalysisResponseDto.ts").ImageAnalysisResponseDto>("vlm");
+export function useNerApi() {
+  return useApi<TextImageAnalysisResponseDto>("ner");
 }
 
-export function useNerApi() {
-  return useApi<import("../types/TextImageAnalysisResponseDto.ts").TextImageAnalysisResponseDto>("ner");
+export function useVlmApi() {
+  return useApi<ImageAnalysisResponseDto>("vlm");
 }
+
+export function useVlmRedactApi() {
+    return useApi<ImageRedactResponseDto>("vlm/redact");
+}
+

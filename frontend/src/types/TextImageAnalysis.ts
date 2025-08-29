@@ -18,7 +18,6 @@ export function mapTextImageAnalysisResponse(
           value,
         }))
       )
-      .flat(),
-    // detected: dto.entities.map((d) => ({ type: d[0], value: d[1] })),
+      .flat()
   };
 }
