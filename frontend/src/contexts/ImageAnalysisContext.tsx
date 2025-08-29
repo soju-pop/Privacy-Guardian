@@ -8,9 +8,9 @@ import {
   mapImageAnalysisResponse,
   type ImageAnalysis,
 } from "../types/ImageAnalysis.ts";
-import { 
-  mapImageRedactResponse, 
-  type ImageRedact 
+import {
+  mapImageRedactResponse,
+  type ImageRedact,
 } from "../types/ImageRedact.ts";
 
 interface ImageAnalysisState {
@@ -121,11 +121,11 @@ export function ImageAnalysisProvider({ children }: { children: ReactNode }) {
 
     const selectedPolygons = analysis.detected
       .filter((item) => item.checked)
-      .flatMap((item) => item.polygon);
+      .map((item) => item.polygon);
 
     const result = await vlmRedactApi.call({
       file_path: analysis.filePath,
-      polygon: selectedPolygons
+      polygon: selectedPolygons,
     });
 
     setRedactingLoading(false);
