@@ -92,6 +92,7 @@ export function ImageAnalysisProvider({ children }: { children: ReactNode }) {
 
       const mappedResult = mapImageAnalysisResponse(result);
       setAnalysis(mappedResult);
+      setRedactedPreview(null);
       if (mappedResult.detected && mappedResult.detected.length > 0) {
         showToast({
           message: `Sensitive Data Detected\nFound ${mappedResult.detected.length} instances`,
