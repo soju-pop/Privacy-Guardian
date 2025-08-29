@@ -5,6 +5,7 @@ export interface ToastOptions {
   message: string;
   duration?: number;
   style?: any;
+  background?: string;
 }
 
 interface ToastContextType {
@@ -31,7 +32,7 @@ export function ToastProvider({ children }: { children: ReactNode }) {
   function showToast(options: ToastOptions) {
     setToast(options);
     setIsVisible(true);
-    
+
     // Auto-hide after duration (default 3 seconds)
     const duration = options.duration || 3000;
     setTimeout(() => {
