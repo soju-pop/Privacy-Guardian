@@ -1,5 +1,5 @@
 import { Button } from "../../common/Button.tsx";
-import { SampleImagePickerModal, sampleImages } from "../../components/SampleImagePickerModal.tsx";
+import { SampleImagePickerModal, sampleImages } from "../../components/SampleImagePicker/SampleImagePickerModal.tsx";
 import { UploadSection } from "./UploadSection.tsx";
 import { useTheme } from "../../theme/ThemeProvider.tsx";
 

@@ -6,6 +6,7 @@ const theme = {
   danger: "#ef4444",
   border: "#333",
   background: "#161616",
+  backgroundSecondary: "#232323ff",
   text: "#fff",
   textSecondary: "#000",
   fontFamily: "Inter, sans-serif",
