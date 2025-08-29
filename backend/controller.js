@@ -14,8 +14,11 @@ exports.ner = async (req, res) => {
 
 exports.vlm = async (req, res) => {
   try {
-    const { image } = req.body;
-    const response = await axios.post(`${MODEL_URL}/ner`, { image });
+    let { image_base64 } = req.body;
+    if (typeof image_base64 === 'string' && image_base64.startsWith('data:image/png;base64,')) {
+      image_base64 = image_base64.replace('data:image/png;base64,', '');
+    }
+    const response = await axios.post(`${MODEL_URL}/vlm`, { image_base64 });
     res.json(response.data);
   } catch (err) {
     res.status(500).json({ error: err.message });
