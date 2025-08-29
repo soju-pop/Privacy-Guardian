@@ -1,3 +1,9 @@
+"""
+Usage:
+$ pip3 install fastapi uvicorn
+
+$ python3 main.py
+"""
 from fastapi import FastAPI, Request
 from pydantic import BaseModel
 from typing import Dict, List
