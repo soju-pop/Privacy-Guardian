@@ -1,6 +1,9 @@
 export interface ImageAnalysisResponseDto {
-  detected: Array<{
-    type: string;
-    value: string;
+  file_path: string;
+  results: Array<{
+    text: string;
+    label: string;
+    polygon: Array<Array<number>>;
   }>;
+  status: string;
 }
