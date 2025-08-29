@@ -1,5 +1,4 @@
-from fastapi import FastAPI, HTTPException, UploadFile, File
-from fastapi.responses import JSONResponse
+from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
 from typing import List, Dict
 import spacy
@@ -14,7 +13,6 @@ import glob
 import logging
 import sys
 import base64
-from io import BytesIO
 
 # Configure logging
 logging.basicConfig(
@@ -181,22 +179,12 @@ async def vlm(request: VLMRequest):
     if not image_data:
         raise HTTPException(status_code=400, detail="Empty image data")
 
-    # Validate with Pillow before saving
-    try:
-        Image.open(BytesIO(image_data)).verify()
-    except Exception:
-        raise HTTPException(status_code=400, detail="Invalid or corrupted image data")
-
     # Save to a unique temporary file
     data_dir = os.path.join(os.getcwd(), "data")
     os.makedirs(data_dir, exist_ok=True)  # ensure it exists
     input_path = os.path.join(data_dir, f"temp_{next_index}.png")
     with open(input_path, "wb") as f:
         f.write(image_data)
-
-    image = cv2.imread(input_path)
-    if image is None:
-        raise HTTPException(status_code=400, detail="Invalid image file")
 
     entities = {
         "NRIC": [], 
@@ -207,7 +195,14 @@ async def vlm(request: VLMRequest):
     results = []
 
     # Run OCR
-    ocr_results = ocr.predict(input_path)
+    try:
+        ocr_results = ocr.predict(input_path)
+    except:
+        return {
+            "file_path": input_path,
+            "results": results,
+            "status": "success" if results else "nil"
+        }
 
     for page in ocr_results:
         rec_texts = page["rec_texts"]
