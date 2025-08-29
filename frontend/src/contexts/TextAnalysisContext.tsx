@@ -44,9 +44,7 @@ export function TextAnalysisProvider({ children }: { children: ReactNode }) {
       });
 
       setLoading(false);
-      if (!result) {
-        return;
-      }
+      if (!result) return;
 
       const mappedResult = mapTextImageAnalysisResponse(result);
       setAnalysis(mappedResult);

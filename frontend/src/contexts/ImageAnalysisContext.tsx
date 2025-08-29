@@ -2,13 +2,16 @@ import { createContext, useContext, useState } from "@lynx-js/react";
 import type { ReactNode } from "@lynx-js/react";
 
 import { useToast } from "./ToastContext.tsx";
-import { useVlmApi } from "../hooks/useApi.ts";
+import { useVlmApi, useVlmRedactApi } from "../hooks/useApi.ts";
 import { imageFileToBase64 } from "../utils/image.ts";
 import {
   mapImageAnalysisResponse,
   type ImageAnalysis,
 } from "../types/ImageAnalysis.ts";
-import type { ImageRedact } from "../types/ImageRedact.ts";
+import { 
+  mapImageRedactResponse, 
+  type ImageRedact 
+} from "../types/ImageRedact.ts";
 
 interface ImageAnalysisState {
   file: any;
@@ -55,6 +58,7 @@ export function ImageAnalysisProvider({ children }: { children: ReactNode }) {
   const [redactingLoading, setRedactingLoading] = useState(false);
   const { showToast } = useToast();
   const vlmApi = useVlmApi();
+  const vlmRedactApi = useVlmRedactApi();
 
   function handleUpload() {
     setShowModal(true);
@@ -84,9 +88,7 @@ export function ImageAnalysisProvider({ children }: { children: ReactNode }) {
       });
 
       setAnalysisLoading(false);
-      if (!result) {
-        return;
-      }
+      if (!result) return;
 
       const mappedResult = mapImageAnalysisResponse(result);
       setAnalysis(mappedResult);
@@ -114,13 +116,23 @@ export function ImageAnalysisProvider({ children }: { children: ReactNode }) {
   }
 
   async function handleRedact() {
+    if (!file || !analysis) return;
     setRedactingLoading(true);
 
-    // TODO: Call the backend API to redact the image
-    setTimeout(() => {
-      setRedactedPreview({ preview: file });
-      setRedactingLoading(false);
-    }, 1000);
+    const selectedPolygons = analysis.detected
+      .filter((item) => item.checked)
+      .flatMap((item) => item.polygon);
+
+    const result = await vlmRedactApi.call({
+      file_path: analysis.filePath,
+      polygon: selectedPolygons
+    });
+
+    setRedactingLoading(false);
+    if (!result) return;
+
+    const mappedResult = mapImageRedactResponse(result);
+    setRedactedPreview(mappedResult);
   }
 
   return (
