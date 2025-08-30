@@ -1,0 +1,10 @@
+spacy==3.7.4
+spacy-transformers
+fastapi
+uvicorn[standard]
+paddleocr
+paddlepaddle
+opencv-python
+pillow
+numpy==1.25.2
+python-multipart

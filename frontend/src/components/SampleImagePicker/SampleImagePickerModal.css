@@ -1,0 +1,28 @@
+@keyframes slideUpFull {
+  from {
+    transform: translateY(100%);
+    opacity: 0.7;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+@keyframes slideDownFull {
+  from {
+    transform: translateY(0);
+    opacity: 1;
+  }
+  to {
+    transform: translateY(100%);
+    opacity: 0.7;
+  }
+}
+
+@media (max-width: 600px) {
+  .sample-image-modal-drawer {
+    border-radius: 0;
+    padding: 18px 8px 8px 8px;
+  }
+}

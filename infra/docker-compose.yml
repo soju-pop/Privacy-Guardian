@@ -1,17 +1,6 @@
 version: "3.9"
 
 services:
-  frontend:
-    build:
-      context: ../frontend
-      dockerfile: ../infra/frontend.Dockerfile
-    ports:
-      - "3000:3000"
-    environment:
-      - REACT_APP_BACKEND_URL=http://localhost:4000
-    depends_on:
-      - backend
-
   backend:
     build:
       context: ../backend
@@ -21,13 +10,12 @@ services:
     environment:
       - NODE_ENV=development
       - PORT=4000
-    depends_on:
-      - contracts
 
-  contracts:
+  model:
     build:
-      context: ../smart-contracts
-      dockerfile: ../infra/smart-contracts.Dockerfile
-    command: sh -c "npx hardhat node"
+      context: ../model
+      dockerfile: ../infra/model.Dockerfile
     ports:
-      - "8545:8545"
+      - "8000:8000"
+    environment:
+      - MODEL_ENV=production
